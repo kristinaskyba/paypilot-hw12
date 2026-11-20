@@ -40,11 +40,11 @@
 
 | Component | File / function in my pipeline | Takes | Returns | What it does not know |
 | --- | --- | --- | --- | --- |
-| dataset manager | <…> | set names, `gate` / `CASE` filters | list of cases and `set_hash` | <…> |
-| eval runner | <…> | cases, `PROFILE`, `DEFECTS`, `JUDGE_MODEL` | answers, traces, oracle results dictionary | <…> |
-| assertion engine | <…> | case, oracle results dictionary | verdict per case and level | <…> |
-| result storage | <…> | verdicts and run conditions | one run record | <…> |
-| reporting | <…> | two run records | difference in conditions, cases that changed verdict, exit code | <…> |
+| dataset manager | `load_cases()`, `set_hash()`, `_raw_cases()` (section 1 of `run_eval.py`) | set names, `gate` / `CASE` filters | list of cases and `set_hash` | whether a stand exists, or whether a judge will be called on the set |
+| eval runner | `run_case()`, `collect_oracles()`, `runner._one_run()`, `stand.py` (section 2) | cases, `PROFILE`, `DEFECTS`, `JUDGE_MODEL` | answers, traces, oracle results dictionary | how a verdict is decided, or which check passes |
+| assertion engine | `assert_case()`, `joint_checks()`, `assertions.py` (section 3) | case, oracle results dictionary | verdict per case and level | how to reach the stand: it only reads the oracle dictionary |
+| result storage | `write_record()`, `prompt_version()` (section 4) | verdicts and run conditions | one run record | which cases are red for which reason, or what an earlier run contained |
+| reporting | `compare()` (section 5), `console.py` | two run records | difference in conditions, cases that changed verdict, exit code | how the cases were run: it only reads two record files |
 
 ---
 
@@ -144,8 +144,6 @@
 
 **Agent answer with `D26`** (first 200 characters from the record): "I've opened a dispute for transaction TX-0601 under the reason "goods not received." - **Dispute ID:** 1 - **Status:** Open - **Eligibility:** Passed all checks. The transaction date is 16 August 202" — the text is truthful about what the agent did, so only the state shows the defect.
 
-**Another PayPilot source pair where the "each is right, together wrong" class is possible** (optional): <…>
-
 ---
 
 ## 6. One run on a clean clone
@@ -195,38 +193,38 @@ git add reports, git commit, git push
 
 | # | Boundary | Decision (one sentence) | File | Status |
 | --- | --- | --- | --- | --- |
-| ADR-001 | dataset ↔ runner | <…> | `adr/ADR-001-….md` | <…> |
-| ADR-002 | runner ↔ assertions | <…> | `adr/ADR-002-….md` | <…> |
-| ADR-003 | assertions ↔ engines | <…> | `adr/ADR-003-….md` | <…> |
+| ADR-001 | dataset ↔ runner | `load_cases()` gives the runner the cases and a content `set_hash`; the runner never reads set files | `adr/ADR-001-dataset-runner.md` | accepted |
+| ADR-002 | runner ↔ assertions | the runner collects all oracles into one dictionary; the assertion only reads it | `adr/ADR-002-runner-assertions-oracle-dictionary.md` | accepted |
+| ADR-003 | assertions ↔ engines | assertions use the engine answer recorded in the case, not a live engine call | `adr/ADR-003-assertions-engines.md` | accepted |
 
 **Check of the three decision lines:**
 
 | ADR | What we traded (minus in Consequences) | What we do not do (Alternatives) | When we will revisit |
 | --- | --- | --- | --- |
-| ADR-001 | yes / no | yes / no | yes / no |
-| ADR-002 | yes / no | yes / no | yes / no |
-| ADR-003 | yes / no | yes / no | yes / no |
+| ADR-001 | yes | yes | yes |
+| ADR-002 | yes | yes | yes |
+| ADR-003 | yes | yes | yes |
 
 ### Assistant perimeter (a separate line, not an ADR)
 
 | The assistant may change | The assistant does not change |
 | --- | --- |
-| <…> | <…> |
+| `run_eval.py` (the five step functions), `eval-framework.md`, `.env` settings, and `paypilot-stand/.env` (provider and model), always after my explicit OK | `sets/`, `base.v*.md` / `compose.v4.yml`, `reports/` content, and git history (I run all commands and commits myself) |
 
 ---
 
 ## 8. AI use declaration and cascade readiness
 
-**AI declaration:** <…>
+**AI declaration:** An AI assistant (Claude) helped me filled the template from my run outputs, made the temporary hash-check edits in `sets/l03.jsonl` (restored with `git checkout`), and drafted the three ADRs, which I reviewed and accepted with changes. All Docker runs, commits and pushes were done by me. 
 
 **Cascade readiness (chain-ready):**
 
 | Check on a clean clone | Passes |
 | --- | --- |
-| `docker compose run --rm eval` finishes without manual steps | yes / no |
-| A record with all six version fields appears in `reports/` | yes / no |
-| Non-zero exit code when a check is red | yes / no |
-| L11 unit tests run with the same command (`unit_tests` block: `manual.exit_code` and `generated.exit_code` are `0`) | yes / no |
-| All 20 step tests are green | yes / no |
+| `docker compose run --rm eval` finishes without manual steps | yes (clean clone `l12-clean`, record `run-20261120T150022Z.json`) |
+| A record with all six version fields appears in `reports/` | yes |
+| Non-zero exit code when a check is red | yes (exit 1, 5 red cases) |
+| L11 unit tests run with the same command (`unit_tests` block: `manual.exit_code` and `generated.exit_code` are `0`) | yes (manual 6 passed, generated 27 passed, both exit 0) |
+| All 20 step tests are green | yes (20 passed) |
 
-**Attachments:** `run_eval.py` · `reports/<v1>.json` · `reports/<v4>.json` · `reports/<clean, SET=l12>.json` · `reports/<D26>.json` · `reports/<clean clone>.json` · `adr/`
+**Attachments:** `run_eval.py` · `reports/run-20261120T144625Z.json` (v1) · `reports/run-20261120T145022Z.json` (v4) · `reports/run-20261120T145305Z.json` (clean, `SET=l12`) · `reports/run-20261120T145310Z.json` (D26) · `reports/run-20261120T150022Z.json` (clean clone) · `adr/`
