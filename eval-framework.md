@@ -93,29 +93,29 @@
 
 ## 4. Run record and two runs side by side
 
-**How I switched the prompt:** <…>
+**How I switched the prompt:** to `base.v4` (in `paypilot-stand`): `docker compose -f docker-compose.yml -f ../l11/agent-prompt/compose.v4.yml up -d` / back to `base.v1`: `docker compose up -d`
 
-**What the stand said after switching** (`curl -s http://localhost:8000/api/_test/prompt`): field `version` — <…>, first line of `text` — <…>
+**What the stand said after switching** (`curl -s http://localhost:8000/api/_test/prompt`): field `version` — `base.v1`, first line of `text` — `# PayPilot — system prompt (base.v4)`
 
 | Field | Run 1 | Run 2 | Same? |
 | --- | --- | --- | --- |
-| Record file in `reports/` | <…>.json | <…>.json | — |
-| `set` / `gate` | <…> | <…> |  |
-| `set_hash` | <…> | <…> | must match |
-| `prompt_version` | `base.v1` | `base.v4` | must differ |
-| `stand_prompt_label` | <…> | <…> |  |
-| `profile` | <…> | <…> |  |
-| `judge_model` | <…> | <…> |  |
-| `rubric_version` | <…> | <…> |  |
-| `elapsed`, s | <…> | <…> | — |
-| `passed` / `failed` | <…> | <…> | — |
-| `machine.cost_usd` | <…> | <…> | — |
+| Record file in `reports/` | `run-20261120T144625Z.json` | `run-20261120T145022Z.json` | — |
+| `set` / `gate` | `l03` / `daily` | `l03` / `daily` | yes |
+| `set_hash` | `2eeadf91c793` | `2eeadf91c793` | yes |
+| `prompt_version` | `base.v1` | `base.v4` | differs, as it must |
+| `stand_prompt_label` | `base.v1` | `base.v1` | yes (the label lies for v4) |
+| `profile` | `clean` | `clean` | yes |
+| `judge_model` | `not-used` | `not-used` | yes |
+| `rubric_version` | `rubric.v1` | `rubric.v1` | yes |
+| `elapsed`, s | 135.6 | 142.6 | — |
+| `passed` / `failed` | 33 / 4 | 32 / 5 | — |
+| `machine.cost_usd` | 0.0149 | 0.0157 | — |
 
-**Cases that changed verdict** (ID and assertion type): <…>
+**Cases that changed verdict** (ID and assertion type): `DIS-004-N` (pass → FAIL; forbidden-pattern assertion, no `customer_id` in the case). Red in both runs: `DIS-002-N`, `DIS-006`, `DIS-007` (no `customer_id` in the case — a set defect) and `ORD-001` (extra `get_account` call — agent behaviour).
 
-**Noise** (how many cases change between two runs under the same conditions: my own measurement or the reference one): <…>
+**Noise** (how many cases change between two runs under the same conditions: my own measurement or the reference one): reference noise from the lesson — 1 case of 71 changes verdict between two runs under the same conditions; `DIS-004-N` is one of the cases that flipped between two reference `base.v4` runs.
 
-**What changed between the runs (one sentence):** <…>
+**What changed between the runs (one sentence):** One condition changed — the prompt `base.v1` → `base.v4` on the same `set_hash` — and one case (`DIS-004-N`) flipped, which is within the reference noise of 1 case, so the L03 set shows no real difference between the two prompts.
 
 **Minutes from "run finished" to "I know which cases changed verdict":** by hand, reading JSON (step 4) — <…> min · with `--compare` (step 6) — <…> min
 
