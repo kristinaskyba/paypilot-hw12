@@ -52,20 +52,20 @@
 
 | Field | Value |
 | --- | --- |
-| Entry point to cases | <…> |
-| What is hashed | <…> |
-| Algorithm and hash length in the record | <…> |
-| `step2` tests | <… of 6 green> |
+| Entry point to cases | `load_cases(names, gate, only)` in section 1 of `run_eval.py` |
+| What is hashed | the content of the cases that went into the run (after the `GATE` and `CASE` filters), each case as canonical JSON (`sort_keys`, no spaces), sorted by id; not the file bytes, names, paths or time |
+| Algorithm and hash length in the record | SHA-256 of the lines joined with `\n`, first 12 hex characters |
+| `step2` tests | 6 of 6 green |
 
 &nbsp;
 
 | Check | `set_hash` before | `set_hash` after | Changed? | Expected |
 | --- | --- | --- | --- | --- |
-| Test case appended to `sets/l03.jsonl` | <…> | <…> | yes / no | yes |
-| File saved with CRLF line endings | <…> | <…> | yes / no | no |
-| Test case removed | <…> | <…> | yes / no | hash back to the first one |
+| Test case appended to `sets/l03.jsonl` (copy of `FX-001` as `FX-001-COPY`) | `2eeadf91c793` | `78dacc031336` | yes | yes |
+| File saved with CRLF line endings | `78dacc031336` | `78dacc031336` | no | no |
+| Test case removed | `78dacc031336` | `2eeadf91c793` | yes | hash back to the first one |
 
-**If the result did not match the expectation — what I fixed:** <…>
+**If the result did not match the expectation — what I fixed:** nothing, all three checks matched. `2eeadf91c793` is the same as the reference `SET=l03` hash. The file was restored with `git checkout -- sets/l03.jsonl`.
 
 ---
 

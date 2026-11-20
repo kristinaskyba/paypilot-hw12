@@ -81,7 +81,13 @@ def set_hash(names: list[str], ids: list[str]) -> str:
       - у хеш не потрапляє нічого, крім кейсів: ні час, ні шлях, ні звіт.
     Підказка: _raw_cases(name) повертає кейси файлу як є; ids — id кейсів
     після фільтрів GATE і CASE."""
-    raise NotImplementedError("КРОК 2: set_hash() ще не написано")
+    all_cases = {}
+    for name in names:
+        all_cases.update(_raw_cases(name))
+    lines = [json.dumps(all_cases[i], sort_keys=True, ensure_ascii=False,
+                        separators=(",", ":"))
+             for i in sorted(ids)]
+    return hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()[:12]
 
 
 
