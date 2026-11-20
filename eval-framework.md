@@ -8,10 +8,10 @@
 
 | What I predict | Now | After the lab |
 | --- | --- | --- |
-| How many commands I run by hand to get the full picture for sets L03–L11 | 6 | <…> |
-| How many of the six version fields in my last report tell the truth | 4 | <…> |
+| How many commands I run by hand to get the full picture for sets L03–L11 | 6 | 1 (`docker compose run --rm eval`) |
+| How many of the six version fields in my last report tell the truth | 4 | 6 |
 
-**What changed and what it means (one sentence):** <…>
+**What changed and what it means (one sentence):** One command now runs all daily sets plus the L11 unit tests and writes a record whose six fields are all true (the prompt version comes from the prompt text, not the stand label), so any two runs can be put side by side.
 
 ---
 
@@ -117,7 +117,7 @@
 
 **What changed between the runs (one sentence):** One condition changed — the prompt `base.v1` → `base.v4` on the same `set_hash` — and one case (`DIS-004-N`) flipped, which is within the reference noise of 1 case, so the L03 set shows no real difference between the two prompts.
 
-**Minutes from "run finished" to "I know which cases changed verdict":** by hand, reading JSON (step 4) — <…> min · with `--compare` (step 6) — <…> min
+**Minutes from "run finished" to "I know which cases changed verdict":** by hand, reading JSON (step 4) — a few minutes (not timed) · with `--compare` (step 6) — about 2 seconds
 
 ---
 
@@ -152,20 +152,21 @@
 
 | Run contract item | How I checked | Holds? |
 | --- | --- | --- |
-| Asks nothing from the keyboard | <…> | yes / no |
-| Takes everything that varies from environment variables: `SET`, `GATE`, `CASE`, `PROFILE`, `DEFECTS`, `JUDGE_MODEL` | <…> | yes / no |
-| Writes a record to `reports/` with all six version fields | <…> | yes / no |
-| Returns a non-zero code if any check fails | <…> | yes / no |
-| `--dry-run` counts cases and calls without spending | <…> | yes / no |
+| Asks nothing from the keyboard | full run on the clean clone finished without input | yes |
+| Takes everything that varies from environment variables: `SET`, `GATE`, `CASE`, `PROFILE`, `DEFECTS`, `JUDGE_MODEL` | steps 3–5 used `-e SET=…`, `-e GATE=all`, `-e DEFECTS=D26`; no flags or code edits | yes |
+| Writes a record to `reports/` with all six version fields | `reports/run-20261120T150022Z.json` has `prompt_version`, `set_hash`, `profile`, `judge_model`, `rubric_version`, `elapsed` | yes |
+| Returns a non-zero code if any check fails | `echo $?` → `1` (5 red cases) | yes |
+| `--dry-run` counts cases and calls without spending | prints 71 cases, 72 agent calls, 0 judge calls, `нічого не викликано` | yes |
 
 **Commands on the clean clone:**
 
 ```text
-git clone <HW repo> l12-clean
+git clone git@github-personal:kristinaskyba/paypilot-hw12.git l12-clean
 cd l12-clean
+cp ../hw12/.env .env    # environment setting: L11_DIR=../hw11
 docker compose run --rm eval --dry-run
 docker compose run --rm eval
-<exit code>
+echo $?   # 1
 docker compose run --rm eval --compare reports/<v1>.json reports/<v4>.json
 docker compose run --rm --entrypoint pytest eval tests -q
 git add reports, git commit, git push
@@ -173,20 +174,20 @@ git add reports, git commit, git push
 
 | Field | Value |
 | --- | --- |
-| Manual steps between cloning and the record | <…> |
-| Run record | `reports/<…>.json` |
-| `passed` / `failed`, exit code | <…> |
-| `unit_tests` block in the record | manual <…>, generated <…> |
-| `--compare` output for the two step 4 records (conclusion line) | <…> |
-| What I had to fix to make the clone work | <…> |
+| Manual steps between cloning and the record | 0 (only the environment `.env` with `L11_DIR=../hw11`) |
+| Run record | `reports/run-20261120T150022Z.json` |
+| `passed` / `failed`, exit code | 66 / 5, exit code 1 (red: `DIS-002-N`, `DIS-006`, `DIS-007`, `TOOL-402` — no `customer_id`; `ORD-001` — agent behaviour) |
+| `unit_tests` block in the record | manual 6 passed (exit 0), generated 27 passed (exit 0) |
+| `--compare` output for the two step 4 records (conclusion line) | `comparable: one condition changed — prompt_version`; changed verdict: `DIS-004-N: pass -> FAIL` |
+| What I had to fix to make the clone work | nothing in the repo; my L11 tests live in `hw11`, not in `l11`, so `.env` sets `L11_DIR=../hw11` (an environment setting, not in git) |
 
 ### Run cost in two currencies
 
 | Currency | Value | Source |
 | --- | --- | --- |
-| Machine: minutes | <…> | `elapsed` in the record |
-| Machine: money | <…> | `machine.cost_usd` in the record |
-| Human: minutes on "what changed" | by hand <…> · with reporting <…> | section 4 |
+| Machine: minutes | 4.4 (262.0 s) | `elapsed` in the record |
+| Machine: money | $0.0284 | `machine.cost_usd` in the record |
+| Human: minutes on "what changed" | by hand a few minutes (not timed) · with reporting about 2 seconds | section 4 |
 
 ---
 
