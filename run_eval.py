@@ -319,7 +319,36 @@ def compare(path_a: str, path_b: str) -> int:
     вердикт (поле "cases": id і passed). Код повернення:
       0 — порівнювані: set_hash однаковий і різниться не більше однієї умови;
       1 — не порівнювані."""
-    raise NotImplementedError("КРОК 6: compare() ще не написано")
+    a = json.loads(Path(path_a).read_text(encoding="utf-8"))
+    b = json.loads(Path(path_b).read_text(encoding="utf-8"))
+
+    print(f"{'field':<16} {'A':<24} {'B':<24}")
+    for f in VERSION_FIELDS:
+        mark = "" if f not in CONDITIONS else ("=" if a.get(f) == b.get(f) else "≠")
+        print(f"{f:<16} {str(a.get(f)):<24} {str(b.get(f)):<24} {mark}")
+    print(f"{'passed/failed':<16} {str(a.get('passed')) + '/' + str(a.get('failed')):<24} "
+          f"{str(b.get('passed')) + '/' + str(b.get('failed')):<24}")
+
+    verdict_a = {c["id"]: c["passed"] for c in a.get("cases", [])}
+    flipped = [(c["id"], verdict_a[c["id"]], c["passed"]) for c in b.get("cases", [])
+               if c["id"] in verdict_a and verdict_a[c["id"]] != c["passed"]]
+    if flipped:
+        print("cases that changed verdict:")
+        for cid, was, now in flipped:
+            print(f"  {cid}: {'pass' if was else 'FAIL'} -> {'pass' if now else 'FAIL'}")
+    else:
+        print("cases that changed verdict: none")
+
+    differ = [f for f in CONDITIONS if a.get(f) != b.get(f)]
+    if a.get("set_hash") != b.get("set_hash"):
+        print("NOT comparable: set_hash differs — the case set changed")
+        return 1
+    if len(differ) > 1:
+        print(f"NOT comparable: {len(differ)} conditions changed — {', '.join(differ)}")
+        return 1
+    print("comparable: " + (f"one condition changed — {differ[0]}" if differ
+                            else "no condition changed"))
+    return 0
 
 
 
