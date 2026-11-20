@@ -73,21 +73,21 @@
 
 | Check | How I checked | Result |
 | --- | --- | --- |
-| `run_eval.py` is one entry point for all sets | <…> | yes / no |
-| The assertion engine takes the oracle results dictionary | <…> | yes / no |
-| The runner collects the dictionary, the assertion only reads it (no HTTP in the check) | <…> | yes / no |
-| The judge does not get into the daily layer (`gate` field) | <…> | yes / no |
-| `tests/manual/` and `tests/generated/` are a separate input, not a case set | <…> | yes / no |
+| `run_eval.py` is one entry point for all sets | `docker compose run --rm eval --dry-run`: one command lists all 7 sets (l03–l08, l12), `set_hash 58cf5b498718` | yes |
+| The assertion engine takes the oracle results dictionary | `assert_case(case, answer, oracles: dict)` | yes |
+| The runner collects the dictionary, the assertion only reads it (no HTTP in the check) | `collect_oracles()` in section 2 calls the stand (`tool_calls`, `state`); `assert_case()` / `joint_checks()` only get the dictionary | yes |
+| The judge does not get into the daily layer (`gate` field) | `--dry-run`: 0 judge calls; `GATE=all --dry-run`: 40 judge calls, all in release cases | yes |
+| `tests/manual/` and `tests/generated/` are a separate input, not a case set | `--dry-run` prints a separate line `unit-тести L11: manual — 6, generated — 27`, not counted in the 71 cases | yes |
 
-**Oracle dictionary for `JNT-026`** (keys collected by the runner; the `SKIP` line from the `SET=l12` run): <…>
+**Oracle dictionary for `JNT-026`** (keys collected by the runner; the `SKIP` line from the `SET=l12` run): `engine:disputes`, `tool:check_dispute_eligibility`, `state:customers`, `state:disputes` (SKIP: `joint_checks()` not written yet; 1 agent call, $0.0009, exit 1; the SKIP record was deleted)
 
 **`--dry-run` output:**
 
 | Layer | Cases | Agent calls | Judge calls |
 | --- | --- | --- | --- |
-| daily (`GATE=daily`) | <…> | <…> | 0 |
-| all (`GATE=all`) | <…> | <…> | <…> |
-| L11 unit tests | manual <…>, generated <…> | — | — |
+| daily (`GATE=daily`) | 71 | 72 | 0 |
+| all (`GATE=all`) | 90 | 264 | 40 |
+| L11 unit tests | manual 6, generated 27 | — | — |
 
 ---
 
