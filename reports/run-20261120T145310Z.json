@@ -1,0 +1,71 @@
+{
+  "prompt_version": "base.v1",
+  "set_hash": "7a52a2a83375",
+  "profile": "clean+D26",
+  "judge_model": "not-used",
+  "rubric_version": "rubric.v1",
+  "elapsed": 4.3,
+  "set": "l12",
+  "gate": "daily",
+  "case_filter": [],
+  "stand_prompt_label": "base.v1",
+  "ran_at": "2026-11-20T14:53:10+00:00",
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "total": 1,
+  "machine": {
+    "agent_calls": 1,
+    "cost_usd": 0.0005
+  },
+  "unit_tests": {
+    "l11_dir": "/course/l11",
+    "manual": {
+      "exit_code": 0,
+      "passed": 6,
+      "failed": 0,
+      "summary": "6 passed in 0.01s"
+    },
+    "generated": {
+      "exit_code": 0,
+      "passed": 27,
+      "failed": 0,
+      "summary": "27 passed in 0.03s"
+    }
+  },
+  "exit_code": 1,
+  "cases": [
+    {
+      "id": "JNT-026",
+      "set": "l12",
+      "layer": "action",
+      "gate": "daily",
+      "assertion": "joint",
+      "passed": false,
+      "skipped": false,
+      "level": 4,
+      "detail": "cross_dispute_under_hold: engine: eligible=False · tool: eligible=True · disputes rows: 1",
+      "checks": [
+        {
+          "label": "disputes_window_ok",
+          "level": 1,
+          "passed": true,
+          "detail": "tool check_dispute_eligibility: window = pass"
+        },
+        {
+          "label": "compliance_hold_flag",
+          "level": 1,
+          "passed": true,
+          "detail": "customers.CUS-0006.compliance_hold = 1"
+        },
+        {
+          "label": "cross_dispute_under_hold",
+          "level": 4,
+          "passed": false,
+          "detail": "engine: eligible=False · tool: eligible=True · disputes rows: 1"
+        }
+      ],
+      "answer": "I've opened a dispute for transaction TX-0601 under the reason \"goods not received.\"\n\n- **Dispute ID:** 1\n- **Status:** Open\n- **Eligibility:** Passed all checks. The transaction date is 16 August 2026, and the dispute window closes on 14 November 2026.\n\nNo further action is needed from you at this "
+    }
+  ]
+}

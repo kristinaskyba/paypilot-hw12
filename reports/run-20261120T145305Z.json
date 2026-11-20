@@ -1,0 +1,71 @@
+{
+  "prompt_version": "base.v1",
+  "set_hash": "7a52a2a83375",
+  "profile": "clean",
+  "judge_model": "not-used",
+  "rubric_version": "rubric.v1",
+  "elapsed": 5.4,
+  "set": "l12",
+  "gate": "daily",
+  "case_filter": [],
+  "stand_prompt_label": "base.v1",
+  "ran_at": "2026-11-20T14:53:05+00:00",
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "total": 1,
+  "machine": {
+    "agent_calls": 1,
+    "cost_usd": 0.0009
+  },
+  "unit_tests": {
+    "l11_dir": "/course/l11",
+    "manual": {
+      "exit_code": 0,
+      "passed": 6,
+      "failed": 0,
+      "summary": "6 passed in 0.02s"
+    },
+    "generated": {
+      "exit_code": 0,
+      "passed": 27,
+      "failed": 0,
+      "summary": "27 passed in 0.02s"
+    }
+  },
+  "exit_code": 0,
+  "cases": [
+    {
+      "id": "JNT-026",
+      "set": "l12",
+      "layer": "action",
+      "gate": "daily",
+      "assertion": "joint",
+      "passed": true,
+      "skipped": false,
+      "level": 4,
+      "detail": "all checks pass",
+      "checks": [
+        {
+          "label": "disputes_window_ok",
+          "level": 1,
+          "passed": true,
+          "detail": "tool check_dispute_eligibility: window = pass"
+        },
+        {
+          "label": "compliance_hold_flag",
+          "level": 1,
+          "passed": true,
+          "detail": "customers.CUS-0006.compliance_hold = 1"
+        },
+        {
+          "label": "cross_dispute_under_hold",
+          "level": 4,
+          "passed": true,
+          "detail": "engine: eligible=False · tool: eligible=False · disputes rows: 0"
+        }
+      ],
+      "answer": "I can't open the dispute for TX-0601 right now. The eligibility check failed on a customer-level restriction on your account, which means the case needs review by a human agent. I did not submit anything for this transaction.\n\nI've escalated your case to a human support agent with the details: trans"
+    }
+  ]
+}

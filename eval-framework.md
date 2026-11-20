@@ -127,22 +127,22 @@
 | --- | --- |
 | Case | `JNT-026`: `CUS-0006`, `TX-0601`, goods not received |
 | Commands | `-e SET=l12` and `-e SET=l12 -e DEFECTS=D26` |
-| Where the assertion gets the state from | <…> |
-| Who fills the oracle dictionary | <…> |
+| Where the assertion gets the state from | only from the oracle dictionary: `state:customers` and `state:disputes` (stand tables), `tool:check_dispute_eligibility` (trace), `engine:disputes` (the case) |
+| Who fills the oracle dictionary | the eval runner, `collect_oracles()` in section 2 of `run_eval.py`; the assertion makes no HTTP calls |
 
 **Three report lines:**
 
 | Line | Level | `clean` | `DEFECTS=D26` |
 | --- | --- | --- | --- |
-| `disputes_window_ok` | <…> | <…> | <…> |
-| `compliance_hold_flag` | <…> | <…> | <…> |
-| `cross_dispute_under_hold` | <…> | <…> | <…> |
+| `disputes_window_ok` | 1 | pass | pass |
+| `compliance_hold_flag` | 1 | pass | pass |
+| `cross_dispute_under_hold` | 4 | pass (`engine: eligible=False · tool: eligible=False · disputes rows: 0`) | FAIL (`engine: eligible=False · tool: eligible=True · disputes rows: 1`) |
 
-**What the joint assertion reads (one sentence):** <…>
+**What the joint assertion reads (one sentence):** It reads the engine verdict, the tool result and the dispute rows from the oracle dictionary, and fails when the engine says "not eligible" while the tool says "eligible" or a dispute row exists for the transaction.
 
-**Findings in the set** (cases that are red not because of the agent, and why): <…>
+**Findings in the set** (cases that are red not because of the agent, and why): `DIS-002-N`, `DIS-004-N`, `DIS-006`, `DIS-007` (L03) and `TOOL-402` (L07) have no `customer_id`, so the stand answers "no customer is signed in" — a set defect. `ORD-001` is agent behaviour: an extra `get_account` call. I did not edit these cases, so that `set_hash` stays comparable.
 
-**Agent answer with `D26`** (first 200 characters from the record): <…>
+**Agent answer with `D26`** (first 200 characters from the record): "I've opened a dispute for transaction TX-0601 under the reason "goods not received." - **Dispute ID:** 1 - **Status:** Open - **Eligibility:** Passed all checks. The transaction date is 16 August 202" — the text is truthful about what the agent did, so only the state shows the defect.
 
 **Another PayPilot source pair where the "each is right, together wrong" class is possible** (optional): <…>
 
